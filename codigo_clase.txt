@@ -1,0 +1,52 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2019 ARM Limited
+ * SPDX-License-Identifier: Apache-2.0
+ */#include "mbed.h"
+
+// Create an instance of the Serial object to print to the console
+UnbufferedSerial pc(USBTX, USBRX, 9600);
+
+AnalogIn pot (A0);
+
+float Vin = 0.0;
+
+// Function to print the current time
+void print_time() {
+    // Get the current time
+    time_t seconds = time(NULL);
+
+    // Convert the time to a human-readable format
+    char buffer[32];
+    strftime(buffer, sizeof(buffer), "%M:%S", localtime(&seconds));
+
+    // Print the time
+    printf("Horas:Minutos %s\n", buffer);
+}
+void leer_analogo(void)
+{
+    int Vin_ent;
+    int entera;
+    int decimal;
+    Vin = pot*3.3;
+    entera = int(Vin);
+    decimal = int((Vin-float(entera))*100);
+    printf("El voltaje es: %1d,%02d\n", entera, decimal);
+}
+
+
+int main() {
+    // Initialize the RTC
+    if (!rtc_isenabled()) {
+        printf("RTC funciona...\n");
+        // Set the RTC to a default time (e.g., 1st Jan 2020, 00:00:00)
+        set_time(1726087020); // Unix timestamp for 2020-01-01 00:00:00
+    }
+
+    // Print the current time every second
+    while (true) {
+        print_time();
+        leer_analogo();
+        ThisThread::sleep_for(1s);
+    }
+}
+
